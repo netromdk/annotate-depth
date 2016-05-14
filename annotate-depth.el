@@ -49,8 +49,7 @@
   :type 'integer
   :group 'annotate-depth)
 
-(defconst annotate-depth--overlays '()
-  "Active annotation overlays.")
+(setq-local annotate-depth--overlays '())
 
 (defun annotate-depth--determine-tab-width ()
   "Determine tab width or indentation offset."
