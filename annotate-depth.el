@@ -84,12 +84,11 @@ as value."
     (add-to-list 'annotate-depth--overlays overlay)))
 
 (defun annotate-depth--create-idle-timer ()
-  "Create idle timer for checking annotation depth. It is buffer local."
+  "Create idle timer for checking annotation depth. It is buffer-local."
   (when (and (not annotate-depth--idle-timer)
              annotate-depth-idle-timeout)
-    (setq annotate-depth--idle-timer
-          (run-with-idle-timer annotate-depth-idle-timeout t
-                               (lambda () (annotate-depth))))))
+    (setq-local annotate-depth--idle-timer
+                (run-with-idle-timer annotate-depth-idle-timeout t 'annotate-depth))))
 
 ;;;###autoload
 (defun annotate-depth ()
@@ -113,7 +112,7 @@ as value."
   (interactive)
   (dolist (overlay annotate-depth--overlays)
     (delete-overlay overlay))
-  (setq annotate-depth--overlays '()))
+  (setq-local annotate-depth--overlays '()))
 
 ;;;###autoload
 (defun annotate-depth-stop ()
@@ -121,7 +120,8 @@ as value."
   (interactive)
   (annotate-depth-clear)
   (when annotate-depth--idle-timer
-    (cancel-timer annotate-depth--idle-timer)))
+    (cancel-timer annotate-depth--idle-timer)
+    (setq-local annotate-depth--idle-timer nil)))
 
 
 (provide 'annotate-depth)
