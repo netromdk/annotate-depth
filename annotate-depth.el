@@ -21,10 +21,11 @@
 ;;; Commentary:
 
 ;; Annotate buffer if indentation depth is beyond threshold. The face `annotate-depth-face' is
-;; applied at indentation level and to end-of-line for each line beyond threshold.
+;; applied at indentation level and to end-of-line for each line beyond threshold. An idle timer is
+;; created and started when `annotate-depth' is invoked.
 ;;
 ;; Use `annotate-depth' to (re)annotate the current buffer, or `annotate-depth-clear' to remove any
-;; annotations.
+;; annotations. `annotate-depth-stop' will stop any active idle timers and clear annotations.
 
 ;;; Code:
 
@@ -49,7 +50,15 @@
   :type 'integer
   :group 'annotate-depth)
 
-(setq-local annotate-depth--overlays '())
+(defcustom annotate-depth-idle-timeout 3
+  "Perform annotation check when Emacs has been idle the
+specified duration of seconds."
+  :type 'integer
+  :group 'annotate-depth)
+
+;; Buffer-local variables.
+(setq-default annotate-depth--overlays '())
+(setq-default annotate-depth--idle-timer nil)
 
 (defun annotate-depth--determine-indent ()
   "Determine tab width or indentation offset."
@@ -73,6 +82,13 @@
     (overlay-put overlay 'face annotate-depth-face)
     (add-to-list 'annotate-depth--overlays overlay)))
 
+(defun annotate-depth--create-idle-timer ()
+  "Create idle timer for checking annotation depth. It is buffer local."
+  (when (not annotate-depth--idle-timer)
+    (setq annotate-depth--idle-timer
+          (run-with-idle-timer annotate-depth-idle-timeout t
+                               (lambda () (annotate-depth))))))
+
 ;;;###autoload
 (defun annotate-depth ()
   "Annotate depth when it gets beyond `annotate-depth-threshold'."
@@ -86,7 +102,8 @@
         (back-to-indentation)
         (when (> (/ (current-indentation) indent-offset)
                  annotate-depth-threshold)
-          (annotate-depth--add-overlay))))))
+          (annotate-depth--add-overlay))))
+    (annotate-depth--create-idle-timer)))
 
 ;;;###autoload
 (defun annotate-depth-clear ()
@@ -95,6 +112,14 @@
   (dolist (overlay annotate-depth--overlays)
     (delete-overlay overlay))
   (setq annotate-depth--overlays '()))
+
+;;;###autoload
+(defun annotate-depth-stop ()
+  "Stop idle annotation depth timer, if active, and clear annotations."
+  (interactive)
+  (annotate-depth-clear)
+  (when annotate-depth--idle-timer
+    (cancel-timer annotate-depth--idle-timer)))
 
 
 (provide 'annotate-depth)
