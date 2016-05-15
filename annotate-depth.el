@@ -35,7 +35,7 @@
   :group 'convenience)
 
 (defface annotate-depth
-  '((t :background "#990000"))
+  '((t :background "#770000"))
   "Default face to highlight too deep indentation levels."
   :version "0.1"
   :group 'annotate-depth)
