@@ -83,7 +83,6 @@
     (let ((indent-offset (annotate-depth--determine-indent)))
       (while (and (= 0 (forward-line 1))
                   (not (eobp)))
-        (beginning-of-line)
         (back-to-indentation)
         (when (> (/ (current-indentation) indent-offset)
                  annotate-depth-threshold)
