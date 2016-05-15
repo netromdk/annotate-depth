@@ -53,17 +53,19 @@
 
 (defun annotate-depth--determine-tab-width ()
   "Determine tab width or indentation offset."
-  (if (boundp 'c-basic-offset)
-      c-basic-offset
-    (if (boundp 'sh-indentation)
-        sh-indentation
-      (if (boundp 'js-indent-level)
-          js-indent-level
-        (if (or (equal t tab-always-indent)
-                (and (boundp 'c-tab-always-indent)
-                     (equal t c-tab-always-indent)))
-            tab-width
-          standard-indent)))))
+  (or (catch 'loop
+        (dolist (indentf '((lambda () (when (boundp 'c-basic-offset) c-basic-offset))
+                           (lambda () (when (boundp 'lisp-indent-offset) lisp-indent-offset))
+                           (lambda () (when (boundp 'sh-indentation) sh-indentation))
+                           (lambda () (when (boundp 'js-indentation) js-indentation))
+                           (lambda () (when (or (equal t tab-always-indent)
+                                                (and (boundp 'c-tab-always-indent)
+                                                     (equal t c-tab-always-indent)))
+                                        tab-width))))
+          (let ((val (funcall indentf)))
+            (when (integerp val)
+              (throw 'loop val)))))
+      standard-indent))
 
 ;;;###autoload
 (defun annotate-depth ()
