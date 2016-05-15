@@ -52,7 +52,8 @@
 
 (defcustom annotate-depth-idle-timeout 3
   "Perform annotation check when Emacs has been idle the
-specified duration of seconds."
+specified duration of seconds. To disable idle timers use `nil'
+as value."
   :type 'integer
   :group 'annotate-depth)
 
@@ -84,7 +85,8 @@ specified duration of seconds."
 
 (defun annotate-depth--create-idle-timer ()
   "Create idle timer for checking annotation depth. It is buffer local."
-  (when (not annotate-depth--idle-timer)
+  (when (and (not annotate-depth--idle-timer)
+             annotate-depth-idle-timeout)
     (setq annotate-depth--idle-timer
           (run-with-idle-timer annotate-depth-idle-timeout t
                                (lambda () (annotate-depth))))))
