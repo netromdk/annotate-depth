@@ -44,7 +44,7 @@
   :type 'face
   :group 'annotate-depth)
 
-(defcustom annotate-depth-threshold 3
+(defcustom annotate-depth-threshold 4
   "Depth threshold and beyond to annotate."
   :type 'integer
   :group 'annotate-depth)
