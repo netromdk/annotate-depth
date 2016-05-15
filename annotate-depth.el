@@ -67,6 +67,12 @@
               (throw 'loop val)))))
       standard-indent))
 
+(defun annotate-depth--add-overlay ()
+  "Add annotation overlay at current point and until end-of-line."
+  (let ((overlay (make-overlay (point) (point-at-eol) nil t t)))
+    (overlay-put overlay 'face annotate-depth-face)
+    (add-to-list 'annotate-depth--overlays overlay)))
+
 ;;;###autoload
 (defun annotate-depth ()
   "Annotate depth when it gets beyond `annotate-depth-threshold'."
@@ -81,9 +87,7 @@
         (back-to-indentation)
         (when (> (/ (current-indentation) indent-offset)
                  annotate-depth-threshold)
-          (let ((overlay (make-overlay (point) (point-at-eol) nil t t)))
-            (overlay-put overlay 'face annotate-depth-face)
-            (add-to-list 'annotate-depth--overlays overlay)))))))
+          (annotate-depth--add-overlay))))))
 
 ;;;###autoload
 (defun annotate-depth-clear ()
