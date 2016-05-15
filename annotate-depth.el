@@ -51,7 +51,7 @@
 
 (setq-local annotate-depth--overlays '())
 
-(defun annotate-depth--determine-tab-width ()
+(defun annotate-depth--determine-indent ()
   "Determine tab width or indentation offset."
   (or (catch 'loop
         (dolist (indentf '((lambda () (when (boundp 'c-basic-offset) c-basic-offset))
@@ -74,16 +74,16 @@
   (save-excursion
     (annotate-depth-clear)
     (goto-char (point-min))
-    (while (and (= 0 (forward-line 1))
-                (not (eobp)))
-      (beginning-of-line)
-      (back-to-indentation)
-      (when (> (/ (current-indentation)
-                  (annotate-depth--determine-tab-width))
-               annotate-depth-threshold)
-        (let ((overlay (make-overlay (point) (point-at-eol) nil t t)))
-          (overlay-put overlay 'face annotate-depth-face)
-          (add-to-list 'annotate-depth--overlays overlay))))))
+    (let ((indent-offset (annotate-depth--determine-indent)))
+      (while (and (= 0 (forward-line 1))
+                  (not (eobp)))
+        (beginning-of-line)
+        (back-to-indentation)
+        (when (> (/ (current-indentation) indent-offset)
+                 annotate-depth-threshold)
+          (let ((overlay (make-overlay (point) (point-at-eol) nil t t)))
+            (overlay-put overlay 'face annotate-depth-face)
+            (add-to-list 'annotate-depth--overlays overlay)))))))
 
 ;;;###autoload
 (defun annotate-depth-clear ()
