@@ -111,7 +111,8 @@ as value."
   (annotate-depth--annotate))
 
 (defun annotate-depth-exit ()
-  (annotate-depth--stop-timer))
+  (annotate-depth--stop-timer)
+  (annotate-depth--clear-overlays))
 
 ;;
 ;; Main functions
@@ -144,8 +145,8 @@ as value."
   (when (and (not annotate-depth--idle-timer)
              annotate-depth-idle-timeout)
     (setq annotate-depth--idle-timer
-                (run-with-idle-timer annotate-depth-idle-timeout t
-                                     'annotate-depth--annotate))))
+          (run-with-idle-timer annotate-depth-idle-timeout t
+                               'annotate-depth--annotate))))
 
 (defun annotate-depth--annotate ()
   "Annotate depth when it gets beyond `annotate-depth-threshold'."
@@ -169,8 +170,7 @@ as value."
   (setq annotate-depth--overlays '()))
 
 (defun annotate-depth--stop-timer ()
-  "Stop idle annotation depth timer, if active, and clear annotations."
-  (annotate-depth--clear-overlays)
+  "Stop idle annotation depth timer, if active."
   (when annotate-depth--idle-timer
     (cancel-timer annotate-depth--idle-timer)
     (setq annotate-depth--idle-timer nil)))
