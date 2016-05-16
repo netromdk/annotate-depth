@@ -57,9 +57,45 @@ as value."
   :type 'integer
   :group 'annotate-depth)
 
-;; Buffer-local variables.
-(setq-default annotate-depth--overlays '())
-(setq-default annotate-depth--idle-timer nil)
+;;
+;; Local variables
+;;
+
+(defvar-local annotate-depth--overlays '())
+(defvar-local annotate-depth--idle-timer nil)
+
+;;
+;; Mode
+;;
+
+(defcustom annotate-depth-lighter " Depth"
+  "Text to display in the mode line when annotate depth mode is on."
+  :type 'string
+  :group 'annotate-depth)
+
+(defvar annotate-depth-map (make-sparse-keymap)
+  "Keymap used in `annotate-depth-mode' buffers.")
+
+;;;###autoload
+(define-minor-mode annotate-depth-mode
+  "Minor mode for annotating indentation when too deep."
+  nil
+  annotate-depth-lighter
+  annotate-depth-map
+  :group annotate-depth
+  (if annotate-depth-mode
+      (annotate-depth-enter)
+    (annotate-depth-exit)))
+
+(defun annotate-depth-enter ()
+  (annotate-depth--annotate))
+
+(defun annotate-depth-exit ()
+  (annotate-depth--stop-timer))
+
+;;
+;; Main functions
+;;
 
 (defun annotate-depth--determine-indent ()
   "Determine tab width or indentation offset."
@@ -87,41 +123,37 @@ as value."
   "Create idle timer for checking annotation depth. It is buffer-local."
   (when (and (not annotate-depth--idle-timer)
              annotate-depth-idle-timeout)
-    (setq-local annotate-depth--idle-timer
-                (run-with-idle-timer annotate-depth-idle-timeout t 'annotate-depth))))
+    (setq annotate-depth--idle-timer
+                (run-with-idle-timer annotate-depth-idle-timeout t
+                                     'annotate-depth--annotate))))
 
-;;;###autoload
-(defun annotate-depth ()
+(defun annotate-depth--annotate ()
   "Annotate depth when it gets beyond `annotate-depth-threshold'."
-  (interactive)
-  (save-excursion
-    (annotate-depth-clear)
-    (goto-char (point-min))
-    (let ((indent-offset (annotate-depth--determine-indent)))
-      (while (and (= 0 (forward-line 1))
-                  (not (eobp)))
-        (back-to-indentation)
-        (when (> (/ (current-indentation) indent-offset)
-                 annotate-depth-threshold)
-          (annotate-depth--add-overlay))))
-    (annotate-depth--create-idle-timer)))
+  (when (bound-and-true-p annotate-depth-mode)
+    (save-excursion
+      (annotate-depth--clear-overlays)
+      (goto-char (point-min))
+      (let ((indent-offset (annotate-depth--determine-indent)))
+        (while (and (= 0 (forward-line 1))
+                    (not (eobp)))
+          (back-to-indentation)
+          (when (> (/ (current-indentation) indent-offset)
+                   annotate-depth-threshold)
+            (annotate-depth--add-overlay))))
+      (annotate-depth--create-idle-timer))))
 
-;;;###autoload
-(defun annotate-depth-clear ()
+(defun annotate-depth--clear-overlays ()
   "Remove all annotations."
-  (interactive)
   (dolist (overlay annotate-depth--overlays)
     (delete-overlay overlay))
-  (setq-local annotate-depth--overlays '()))
+  (setq annotate-depth--overlays '()))
 
-;;;###autoload
-(defun annotate-depth-stop ()
+(defun annotate-depth--stop-timer ()
   "Stop idle annotation depth timer, if active, and clear annotations."
-  (interactive)
-  (annotate-depth-clear)
+  (annotate-depth--clear-overlays)
   (when annotate-depth--idle-timer
     (cancel-timer annotate-depth--idle-timer)
-    (setq-local annotate-depth--idle-timer nil)))
+    (setq annotate-depth--idle-timer nil)))
 
 
 (provide 'annotate-depth)
