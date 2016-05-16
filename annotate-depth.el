@@ -69,7 +69,7 @@ automatically buffer-local wherever it is set."
   :type 'integer
   :group 'annotate-depth)
 
-(defcustom annotate-depth-idle-timeout 3
+(defcustom annotate-depth-idle-timeout 2
   "Perform annotation check when Emacs has been idle the
 specified duration of seconds. To disable idle timers use `nil'
 as value."
