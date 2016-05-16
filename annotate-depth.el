@@ -19,14 +19,13 @@
 ;; not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-
-;; Annotate buffer if indentation depth is beyond threshold. The face `annotate-depth-face' is
-;; applied at indentation level and to end-of-line for each line beyond threshold. An idle timer is
-;; created and started when `annotate-depth' is invoked.
 ;;
-;; Use `annotate-depth' to (re)annotate the current buffer, or `annotate-depth--clear-overlays' to
-;; remove any annotations. `annotate-depth--stop-timer' will stop any active idle timers and clear
-;; annotations.
+;; `annotate-depth-mode' annotates buffer if indentation depth is beyond threshold. An idle timer is
+;; started when entering the mode an disabled when exitting it. The face `annotate-depth-face' is
+;; applied at indentation level and to end-of-line for each line beyond threshold.
+;;
+;; Usage:
+;;   (add-hook 'prog-mode-hook 'annotate-depth-mode)
 
 ;;; Code:
 
