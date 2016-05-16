@@ -24,10 +24,30 @@
 ;; applied at indentation level and to end-of-line for each line beyond threshold. An idle timer is
 ;; created and started when `annotate-depth' is invoked.
 ;;
-;; Use `annotate-depth' to (re)annotate the current buffer, or `annotate-depth-clear' to remove any
-;; annotations. `annotate-depth-stop' will stop any active idle timers and clear annotations.
+;; Use `annotate-depth' to (re)annotate the current buffer, or `annotate-depth--clear-overlays' to
+;; remove any annotations. `annotate-depth--stop-timer' will stop any active idle timers and clear
+;; annotations.
 
 ;;; Code:
+
+;;
+;; Compatibility
+;;
+
+;; Inspired by irony/flycheck/magit. The following was added in Emacs 24.3 (mirrors/emacs@b335efc3).
+(eval-and-compile
+  (unless (fboundp 'defvar-local)
+    (defmacro defvar-local (var val &optional docstring)
+      "Define VAR as a buffer-local variable with default value VAL.
+Like `defvar' but additionally marks the variable as being
+automatically buffer-local wherever it is set."
+      (declare (debug defvar) (doc-string 3))
+      (list 'progn (list 'defvar var val docstring)
+            (list 'make-variable-buffer-local (list 'quote var))))))
+
+;;
+;; Customizable variables
+;;
 
 (defgroup annotate-depth nil
   "Annotate buffer if indentation depth is beyond threshold."
