@@ -56,7 +56,6 @@ automatically buffer-local wherever it is set."
 (defface annotate-depth
   '((t :background "#770000"))
   "Default face to highlight too deep indentation levels."
-  :version "0.1"
   :group 'annotate-depth)
 
 (defcustom annotate-depth-face 'annotate-depth
