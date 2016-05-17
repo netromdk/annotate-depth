@@ -156,8 +156,8 @@ as value."
         (while (and (= 0 (forward-line 1))
                     (not (eobp)))
           (back-to-indentation)
-          (when (> (/ (current-indentation) indent-offset)
-                   annotate-depth-threshold)
+          (when (>= (/ (current-indentation) indent-offset)
+                    annotate-depth-threshold)
             (annotate-depth--add-overlay))))
       (annotate-depth--create-idle-timer))))
 
