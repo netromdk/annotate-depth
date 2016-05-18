@@ -63,7 +63,7 @@ automatically buffer-local wherever it is set."
   :type 'face
   :group 'annotate-depth)
 
-(defcustom annotate-depth-threshold 4
+(defcustom annotate-depth-threshold 5
   "Depth threshold and beyond to annotate."
   :type 'integer
   :group 'annotate-depth)
