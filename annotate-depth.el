@@ -106,7 +106,8 @@ as value."
     (annotate-depth-exit)))
 
 (defun annotate-depth-enter ()
-  (annotate-depth--annotate))
+  (annotate-depth--annotate)
+  (annotate-depth--create-idle-timer))
 
 (defun annotate-depth-exit ()
   (annotate-depth--stop-timer)
@@ -158,8 +159,7 @@ as value."
           (back-to-indentation)
           (when (>= (/ (current-indentation) indent-offset)
                     annotate-depth-threshold)
-            (annotate-depth--add-overlay))))
-      (annotate-depth--create-idle-timer))))
+            (annotate-depth--add-overlay)))))))
 
 (defun annotate-depth--clear-overlays ()
   "Remove all annotations."
