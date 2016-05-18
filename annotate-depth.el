@@ -117,6 +117,18 @@ as value."
 ;; Main functions
 ;;
 
+(defun annotate-depth--add-overlay ()
+  "Add annotation overlay at current point and until end-of-line."
+  (let ((overlay (make-overlay (point) (point-at-eol) nil t t)))
+    (overlay-put overlay 'face annotate-depth-face)
+    (add-to-list 'annotate-depth--overlays overlay)))
+
+(defun annotate-depth--clear-overlays ()
+  "Remove all annotations."
+  (dolist (overlay annotate-depth--overlays)
+    (delete-overlay overlay))
+  (setq annotate-depth--overlays '()))
+
 (defun annotate-depth--determine-indent ()
   "Determine tab width or indentation offset."
   (or (catch 'loop
@@ -133,20 +145,6 @@ as value."
               (throw 'loop val)))))
       standard-indent))
 
-(defun annotate-depth--add-overlay ()
-  "Add annotation overlay at current point and until end-of-line."
-  (let ((overlay (make-overlay (point) (point-at-eol) nil t t)))
-    (overlay-put overlay 'face annotate-depth-face)
-    (add-to-list 'annotate-depth--overlays overlay)))
-
-(defun annotate-depth--create-idle-timer ()
-  "Create idle timer for checking annotation depth. It is buffer-local."
-  (when (and (not annotate-depth--idle-timer)
-             annotate-depth-idle-timeout)
-    (setq annotate-depth--idle-timer
-          (run-with-idle-timer annotate-depth-idle-timeout t
-                               'annotate-depth--annotate))))
-
 (defun annotate-depth--annotate ()
   "Annotate depth when it gets beyond `annotate-depth-threshold'."
   (when (bound-and-true-p annotate-depth-mode)
@@ -161,11 +159,13 @@ as value."
                     annotate-depth-threshold)
             (annotate-depth--add-overlay)))))))
 
-(defun annotate-depth--clear-overlays ()
-  "Remove all annotations."
-  (dolist (overlay annotate-depth--overlays)
-    (delete-overlay overlay))
-  (setq annotate-depth--overlays '()))
+(defun annotate-depth--create-idle-timer ()
+  "Create idle timer for checking annotation depth. It is buffer-local."
+  (when (and (not annotate-depth--idle-timer)
+             annotate-depth-idle-timeout)
+    (setq annotate-depth--idle-timer
+          (run-with-idle-timer annotate-depth-idle-timeout t
+                               'annotate-depth--annotate))))
 
 (defun annotate-depth--stop-timer ()
   "Stop idle annotation depth timer, if active."
