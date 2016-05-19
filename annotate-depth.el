@@ -31,21 +31,6 @@
 ;;; Code:
 
 ;;
-;; Compatibility
-;;
-
-;; Inspired by irony/flycheck/magit. The following was added in Emacs 24.3 (mirrors/emacs@b335efc3).
-(eval-and-compile
-  (unless (fboundp 'defvar-local)
-    (defmacro defvar-local (var val &optional docstring)
-      "Define VAR as a buffer-local variable with default value VAL.
-Like `defvar' but additionally marks the variable as being
-automatically buffer-local wherever it is set."
-      (declare (debug defvar) (doc-string 3))
-      (list 'progn (list 'defvar var val docstring)
-            (list 'make-variable-buffer-local (list 'quote var))))))
-
-;;
 ;; Customizable variables
 ;;
 
@@ -80,8 +65,11 @@ as value."
 ;; Local variables
 ;;
 
-(defvar-local annotate-depth--overlays '())
-(defvar-local annotate-depth--idle-timer nil)
+(defvar annotate-depth--overlays '())
+(make-variable-buffer-local 'annotate-depth--overlays)
+
+(defvar annotate-depth--idle-timer nil)
+(make-variable-buffer-local 'annotate-depth--idle-timer)
 
 ;;
 ;; Mode
