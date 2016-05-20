@@ -8,3 +8,13 @@ Usage:
 ```elisp
 (add-hook 'prog-mode-hook 'annotate-depth-mode)
 ```
+
+The threshold can be fine-tuned for specific modes if necessary:
+```elisp
+(add-hook 'annotate-depth-mode-hook
+            (lambda ()
+              (if (equal major-mode 'emacs-lisp-mode)
+                  (setq-local annotate-depth-threshold 10)
+                (when (equal major-mode 'c++-mode)
+                  (setq-local annotate-depth-threshold 4)))))
+```
